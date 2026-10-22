@@ -75,7 +75,11 @@ def generate_answer(question: str, chunks: list[dict], evidence_status: str, ret
         }
 
     context = build_context(chunks)
-    model = settings.RAG_GENERATION_MODEL
+    primary_model = settings.RAG_GENERATION_MODEL
+    fallback_model = getattr(settings, 'RAG_GENERATION_FALLBACK_MODEL', None)
+    models_to_try = [primary_model]
+    if fallback_model and fallback_model != primary_model:
+        models_to_try.append(fallback_model)
 
     prompt = (
         f"Retrieved document excerpts:\n\n{context}\n\n"
@@ -90,34 +94,37 @@ def generate_answer(question: str, chunks: list[dict], evidence_status: str, ret
 
         client = genai.Client(api_key=api_key)
 
-        for attempt in range(retries + 1):
-            try:
-                response = client.models.generate_content(
-                    model=model,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=SYSTEM_INSTRUCTION,
-                        max_output_tokens=1024,
-                        temperature=0.1,   # low temperature = more faithful
-                    ),
-                )
-                answer_text = response.text.strip() if response.text else None
-                if not answer_text:
-                    raise ValueError("Model returned empty response.")
+        last_error = None
+        for model in models_to_try:
+            for attempt in range(retries + 1):
+                try:
+                    response = client.models.generate_content(
+                        model=model,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            system_instruction=SYSTEM_INSTRUCTION,
+                            max_output_tokens=1024,
+                            temperature=0.1,   # low temperature = more faithful
+                        ),
+                    )
+                    answer_text = response.text.strip() if response.text else None
+                    if not answer_text:
+                        raise ValueError("Model returned empty response.")
 
-                return {
-                    'answer': answer_text,
-                    'evidence_status': evidence_status,
-                    'model_used': model,
-                    'error': None,
-                }
+                    return {
+                        'answer': answer_text,
+                        'evidence_status': evidence_status,
+                        'model_used': model,
+                        'error': None,
+                    }
 
-            except Exception as e:
-                logger.warning("Generation attempt %d failed: %s", attempt + 1, e)
-                if attempt < retries:
-                    time.sleep(2 ** attempt)
-                else:
-                    raise
+                except Exception as e:
+                    last_error = e
+                    logger.warning("Generation attempt %d with model %s failed: %s", attempt + 1, model, e)
+                    if attempt < retries:
+                        time.sleep(1)
+
+        raise last_error or RuntimeError("All models failed to generate an answer.")
 
     except Exception as e:
         logger.error("Generation failed: %s", e)

@@ -102,4 +102,5 @@ RAG_CHUNK_OVERLAP = 100       # overlap characters
 RAG_TOP_K = 5                 # number of chunks to retrieve
 RAG_SIMILARITY_THRESHOLD = 0.25  # cosine similarity threshold (lower is more similar for L2)
 RAG_EMBEDDING_MODEL = 'gemini-embedding-001'
-RAG_GENERATION_MODEL = 'gemini-3.8-flash'
+RAG_GENERATION_MODEL = 'gemini-3.5-flash-lite'
+RAG_GENERATION_FALLBACK_MODEL = 'gemini-3.1-flash-lite'

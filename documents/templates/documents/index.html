@@ -857,7 +857,6 @@
      File upload
   ──────────────────────────────────────────────────────────────────────── */
   function uploadFile(file) {
-    const allowed = ['application/pdf', 'text/plain'];
     const allowedExts = ['pdf', 'txt'];
     const ext = file.name.split('.').pop().toLowerCase();
 
