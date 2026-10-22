@@ -1,0 +1,115 @@
+DocuLens AI — Test Sample Document
+Version 1.0 | Created for AI-Fusion 2026 Hackathon
+
+=============================================================
+SECTION 1: ARTIFICIAL INTELLIGENCE OVERVIEW
+=============================================================
+
+Artificial intelligence (AI) refers to the simulation of human intelligence
+processes by computer systems. These processes include learning, reasoning,
+problem-solving, perception, and language understanding.
+
+The three main types of AI are:
+1. Narrow AI (Artificial Narrow Intelligence): AI designed to perform specific tasks.
+2. General AI (Artificial General Intelligence): AI with human-level intelligence across all domains.
+3. Super AI (Artificial Super Intelligence): AI that surpasses human intelligence.
+
+Current AI systems are predominantly Narrow AI. Examples include voice assistants,
+recommendation systems, and image recognition software.
+
+=============================================================
+SECTION 2: MACHINE LEARNING FUNDAMENTALS
+=============================================================
+
+Machine learning is a subset of AI that enables systems to learn from data
+without being explicitly programmed. The primary categories are:
+
+- Supervised Learning: The model trains on labeled data pairs (input, output).
+- Unsupervised Learning: The model finds patterns in unlabeled data.
+- Reinforcement Learning: The model learns by interacting with an environment
+  and receiving reward signals.
+
+Deep learning is a subcategory of machine learning using neural networks with
+multiple layers. It has achieved remarkable results in image recognition,
+natural language processing, and game playing.
+
+=============================================================
+SECTION 3: RETRIEVAL-AUGMENTED GENERATION (RAG)
+=============================================================
+
+Retrieval-Augmented Generation (RAG) is an AI framework that combines information
+retrieval with text generation. The core pipeline consists of:
+
+1. Document ingestion: Documents are split into chunks and embedded as vectors.
+2. Vector indexing: Embeddings are stored in a vector database (e.g., FAISS, ChromaDB).
+3. Query processing: User questions are embedded using the same model.
+4. Semantic retrieval: The most relevant chunks are retrieved via similarity search.
+5. Grounded generation: Retrieved context is passed to an LLM for answer generation.
+
+RAG is preferable to pure generative AI because it grounds answers in specific
+documents, reducing hallucinations and enabling source attribution.
+
+Key RAG metrics:
+- Retrieval precision: How many retrieved chunks are relevant.
+- Retrieval recall: How many relevant chunks were retrieved.
+- Answer faithfulness: How closely the answer follows retrieved evidence.
+
+=============================================================
+SECTION 4: GEMINI AI MODELS
+=============================================================
+
+Google DeepMind's Gemini family of models includes:
+
+- Gemini 3.8 Flash: Fast, balanced model for agentic and multimodal tasks.
+  Context window: 1 million tokens.
+- Gemini 4 Argon: Most powerful model for complex reasoning and research.
+  Context window: 1 million tokens.
+- Gemini Embedding 001: Text-only embedding model for semantic search.
+
+The Gemini API is accessible through the google-genai Python SDK.
+Authentication is performed via an API key stored in the GEMINI_API_KEY
+environment variable.
+
+=============================================================
+SECTION 5: VECTOR DATABASES
+=============================================================
+
+Vector databases store high-dimensional embedding vectors and support
+approximate nearest neighbour (ANN) search. Popular options include:
+
+- FAISS (Facebook AI Similarity Search): Efficient local vector search library.
+  Supports flat (exact) and approximate index types.
+  Best for: local development, offline use, smaller collections.
+  
+- ChromaDB: Open-source embedding database with persistence support.
+  Best for: moderate collections with rich metadata filtering.
+
+- Pinecone: Managed cloud vector database.
+  Best for: large-scale production deployments.
+
+FAISS IndexFlatL2 performs exact L2 distance search. For DocuLens AI,
+we use IndexIDMap wrapping IndexFlatL2 to maintain explicit integer IDs
+that map back to document chunk UUIDs in the SQLite database.
+
+=============================================================
+SECTION 6: AI-FUSION 2026 HACKATHON
+=============================================================
+
+AI-Fusion 2026 is a competitive hackathon focused on practical AI application
+development. The judging criteria are:
+
+- Innovation and Creativity: 25%
+- Problem Relevance: 20%
+- Technical Implementation: 20%
+- UI/UX and Responsiveness: 15%
+- Effective AI Usage: 10%
+- Deployment and Pitch: 10%
+
+DocuLens AI addresses the Document Intelligence challenge by implementing
+a complete RAG pipeline using Django, Gemini AI, and FAISS. The system
+allows users to upload documents, extract and index their content semantically,
+and ask natural language questions with verifiable source attribution.
+
+=============================================================
+END OF DOCUMENT
+=============================================================
