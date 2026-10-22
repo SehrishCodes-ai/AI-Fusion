@@ -27,11 +27,31 @@ if not DEBUG and (not SECRET_KEY or 'insecure' in SECRET_KEY or 'xyz987' in SECR
 elif not SECRET_KEY:
     SECRET_KEY = 'dev-insecure-key-for-local-development-only'
 
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h.strip()]
+
+# Parse ALLOWED_HOSTS with quote-stripping and Render auto-detection
+raw_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
+ALLOWED_HOSTS = [h.strip().strip('"').strip("'") for h in raw_hosts if h.strip().strip('"').strip("'")]
+
+# Automatically trust Render's assigned domain and internal health checks if on Render
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip().strip('"').strip("'")
+if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Render internal load balancers and health-check probes often hit internal IP/0.0.0.0
+if os.environ.get('RENDER') or RENDER_EXTERNAL_HOSTNAME:
+    for internal in ['0.0.0.0', '127.0.0.1', 'localhost']:
+        if internal not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(internal)
+
+# Trust Render reverse-proxy headers for scheme and host
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 CSRF_TRUSTED_ORIGINS_ENV = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '')
 if CSRF_TRUSTED_ORIGINS_ENV:
-    CSRF_TRUSTED_ORIGINS = [o.strip() for o in CSRF_TRUSTED_ORIGINS_ENV.split(',') if o.strip()]
+    CSRF_TRUSTED_ORIGINS = [o.strip().strip('"').strip("'") for o in CSRF_TRUSTED_ORIGINS_ENV.split(',') if o.strip().strip('"').strip("'")]
+elif RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
