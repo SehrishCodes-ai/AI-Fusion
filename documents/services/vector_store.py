@@ -89,6 +89,9 @@ def add_embeddings(chunk_uuids: list[str], embeddings: list[list[float]]):
     with _lock:
         if _index is None:
             _load_or_create(dimension)
+        elif dimension != _dim and _index.ntotal == 0:
+            # Recreate with actual model embedding dimension if empty
+            _load_or_create(dimension)
         elif dimension != _dim:
             raise ValueError(
                 f"Dimension mismatch: index has {_dim}, new embeddings have {dimension}."

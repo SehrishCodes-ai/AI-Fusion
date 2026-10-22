@@ -624,6 +624,7 @@
 
           <!-- Upload Zone -->
           <div class="upload-zone" id="upload-zone">
+            {% csrf_token %}
             <input type="file" id="file-input" accept=".pdf,.txt" aria-label="Select PDF or TXT file" />
             <i class="bi bi-cloud-upload upload-icon"></i>
             <div style="font-weight:600; margin-bottom:4px;">Drop files here or click to upload</div>
@@ -808,10 +809,16 @@
      CSRF helper
   ──────────────────────────────────────────────────────────────────────── */
   function getCsrf() {
-    return document.cookie.split(';')
+    // 1. Try reading from the template-rendered csrfmiddlewaretoken input
+    const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (tokenInput && tokenInput.value) {
+      return tokenInput.value;
+    }
+    // 2. Fall back to cookie lookup
+    const cookie = document.cookie.split(';')
       .map(c => c.trim())
-      .find(c => c.startsWith('csrftoken='))
-      ?.split('=')[1] || '';
+      .find(c => c.startsWith('csrftoken='));
+    return cookie ? cookie.split('=')[1] : '';
   }
 
   /* ────────────────────────────────────────────────────────────────────────

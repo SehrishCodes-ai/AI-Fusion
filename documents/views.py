@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST, require_GET
 
 from .forms import DocumentUploadForm
@@ -42,6 +43,7 @@ def _get_session_documents(request):
 # Main workspace view
 # ──────────────────────────────────────────────────────────────────────────────
 
+@ensure_csrf_cookie
 def index(request):
     """Main workspace: shows uploaded docs and Q&A interface."""
     documents = _get_session_documents(request)
